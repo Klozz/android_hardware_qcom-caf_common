@@ -61,7 +61,11 @@ SOONG_CONFIG_qtidisplay += \
     default \
     var1 \
     var2 \
-    var3
+    var3 \
+    llvmcov \
+    composer_version \
+    smmu_proxy \
+    ubwcp_headers
 
 # Set default values for qtidisplay config
 SOONG_CONFIG_qtidisplay_drmpp ?= false
@@ -74,6 +78,10 @@ SOONG_CONFIG_qtidisplay_default ?= true
 SOONG_CONFIG_qtidisplay_var1 ?= false
 SOONG_CONFIG_qtidisplay_var2 ?= false
 SOONG_CONFIG_qtidisplay_var3 ?= false
+SOONG_CONFIG_qtidisplay_llvmcov ?= false
+SOONG_CONFIG_qtidisplay_smmu_proxy ?= false
+SOONG_CONFIG_qtidisplay_ubwcp_headers ?= false
+SOONG_CONFIG_qtidisplay_composer_version ?= v2
 
 # Add rmnetctl to soong config namespaces
 SOONG_CONFIG_NAMESPACES += rmnetctl
@@ -116,6 +124,21 @@ endif
 # Enable displayconfig on every UM platform
 ifeq ($(filter $(UM_PLATFORMS),$(TARGET_BOARD_PLATFORM)),)
     SOONG_CONFIG_qtidisplay_displayconfig_enabled := true
+endif
+
+# Enable smmu proxy on UM platforms that support it
+ifneq ($(filter $(UM_6_1_FAMILY),$(TARGET_BOARD_PLATFORM)),)
+    SOONG_CONFIG_qtidisplay_smmu_proxy := true
+endif
+
+# Enable ubwcp_headers on UM platforms that support it
+ifneq ($(filter $(UM_6_1_FAMILY),$(TARGET_BOARD_PLATFORM)),)
+    SOONG_CONFIG_qtidisplay_ubwcp_headers := true
+endif
+
+# Check if the target uses composer version 3 and is part of composer version on every UM platforms that support it
+ifeq ($(TARGET_USES_COMPOSER3)$(filter $(UM_PLATFORMS),$(TARGET_BOARD_PLATFORM)),true)
+    SOONG_CONFIG_qtidisplay_composer_version ?= v3
 endif
 
 TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS ?= 0
